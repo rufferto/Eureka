@@ -9,7 +9,7 @@ import XCPlayground
 //: Start by importing Eureka module
 import Eureka
 
-//: Any **Eureka** form must extend from `FromViewController`
+//: Any **Eureka** form must extend from `FormViewController`
 let formController = FormViewController()
 XCPlaygroundPage.currentPage.liveView = formController.view
 

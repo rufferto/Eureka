@@ -7,7 +7,8 @@
 //
 
 import Foundation
-
+import Contacts
+import MapKit
 
 // MARK: Type
 
@@ -42,6 +43,44 @@ public struct PostalAddress: PostalAddressType {
         self.city = city
         self.country = country
     }
+    public init(placemark: CLPlacemark?) {
+      if let placemark = placemark, thoroughfare = placemark.thoroughfare, subThoroughfare = placemark.subThoroughfare {
+        // missing street accessor ?
+        self.street = subThoroughfare + " " + thoroughfare
+        self.state = placemark.administrativeArea
+        self.postalCode = placemark.postalCode
+        self.city = placemark.locality
+        self.country = placemark.country
+      }
+    }
+    public init(dictionary: [NSObject : AnyObject]?) {
+        if let dictionary = dictionary {
+          self.street = dictionary["Street"] as? String
+          self.state = dictionary["State"] as? String
+          self.postalCode = dictionary["ZIP"] as? String
+          self.city = dictionary["City"] as? String
+          self.country = dictionary["Country"] as? String
+        }
+    }
+    public func asDictionary() -> [NSObject : AnyObject] {
+      var dictionary = [NSObject : AnyObject]()
+      if let street = self.street {
+          dictionary["Street"] = street
+      }
+      if let state = self.state {
+          dictionary["State"] = state
+      }
+      if let postalCode = self.postalCode {
+          dictionary["ZIP"] = postalCode
+      }
+      if let city = self.city {
+          dictionary["City"] = city
+      }
+      if let country = self.country {
+          dictionary["Country"] = country
+      }
+      return dictionary
+    }
 }
 
 // MARK: PostalAddressCell
@@ -51,9 +90,9 @@ public struct PostalAddress: PostalAddressType {
  */
 public protocol PostalAddressCellConformance {
     var streetTextField: UITextField { get }
+    var cityTextField: UITextField { get }
     var stateTextField: UITextField { get }
     var postalCodeTextField: UITextField { get }
-    var cityTextField: UITextField { get }
     var countryTextField: UITextField { get }
 }
 
@@ -61,14 +100,14 @@ public protocol PostalAddressFormatterConformance: class {
     var streetUseFormatterDuringInput: Bool { get set }
     var streetFormatter: NSFormatter? { get set }
     
+    var cityUseFormatterDuringInput: Bool { get set }
+    var cityFormatter: NSFormatter? { get set }
+  
     var stateUseFormatterDuringInput: Bool { get set }
     var stateFormatter: NSFormatter? { get set }
     
     var postalCodeUseFormatterDuringInput: Bool { get set }
     var postalCodeFormatter: NSFormatter? { get set }
-    
-    var cityUseFormatterDuringInput: Bool { get set }
-    var cityFormatter: NSFormatter? { get set }
     
     var countryUseFormatterDuringInput: Bool { get set }
     var countryFormatter: NSFormatter? { get set }
@@ -78,9 +117,9 @@ public protocol PostalAddressRowConformance: PostalAddressFormatterConformance {
     var postalAddressPercentage : CGFloat? { get set }
     var placeholderColor : UIColor? { get set }
     var streetPlaceholder : String? { get set }
+    var cityPlaceholder : String? { get set }
     var statePlaceholder : String? { get set }
     var postalCodePlaceholder : String? { get set }
-    var cityPlaceholder : String? { get set }
     var countryPlaceholder : String? { get set }
 }
 
@@ -93,6 +132,19 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
     }()
     
     lazy public var streetSeparatorView : UIView = {
+        let separatorView = UIView()
+        separatorView.translatesAutoresizingMaskIntoConstraints = false
+        separatorView.backgroundColor = .lightGrayColor()
+        return separatorView
+    }()
+    
+    lazy public var cityTextField : UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    lazy public var citySeparatorView : UIView = {
         let separatorView = UIView()
         separatorView.translatesAutoresizingMaskIntoConstraints = false
         separatorView.backgroundColor = .lightGrayColor()
@@ -125,19 +177,6 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         return separatorView
     }()
     
-    lazy public var cityTextField : UITextField = {
-        let textField = UITextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-    
-    lazy public var citySeparatorView : UIView = {
-        let separatorView = UIView()
-        separatorView.translatesAutoresizingMaskIntoConstraints = false
-        separatorView.backgroundColor = .lightGrayColor()
-        return separatorView
-    }()
-    
     lazy public var countryTextField : UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -160,12 +199,12 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
     deinit {
         streetTextField.delegate = nil
         streetTextField.removeTarget(self, action: nil, forControlEvents: .AllEvents)
+        cityTextField.delegate = nil
+        cityTextField.removeTarget(self, action: nil, forControlEvents: .AllEvents)
         stateTextField.delegate = nil
         stateTextField.removeTarget(self, action: nil, forControlEvents: .AllEvents)
         postalCodeTextField.delegate = nil
         postalCodeTextField.removeTarget(self, action: nil, forControlEvents: .AllEvents)
-        cityTextField.delegate = nil
-        cityTextField.removeTarget(self, action: nil, forControlEvents: .AllEvents)
         countryTextField.delegate = nil
         countryTextField.removeTarget(self, action: nil, forControlEvents: .AllEvents)
         titleLabel?.removeObserver(self, forKeyPath: "text")
@@ -180,21 +219,21 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         contentView.addSubview(titleLabel!)
         contentView.addSubview(streetTextField)
         contentView.addSubview(streetSeparatorView)
+        contentView.addSubview(cityTextField)
+        contentView.addSubview(citySeparatorView)
         contentView.addSubview(stateTextField)
         contentView.addSubview(stateSeparatorView)
         contentView.addSubview(postalCodeTextField)
         contentView.addSubview(postalCodeSeparatorView)
-        contentView.addSubview(cityTextField)
-        contentView.addSubview(citySeparatorView)
         contentView.addSubview(countryTextField)
         
         titleLabel?.addObserver(self, forKeyPath: "text", options: NSKeyValueObservingOptions.Old.union(.New), context: nil)
         imageView?.addObserver(self, forKeyPath: "image", options: NSKeyValueObservingOptions.Old.union(.New), context: nil)
         
         streetTextField.addTarget(self, action: #selector(PostalAddressCell.textFieldDidChange(_:)), forControlEvents: .EditingChanged)
+        cityTextField.addTarget(self, action: #selector(PostalAddressCell.textFieldDidChange(_:)), forControlEvents: .EditingChanged)
         stateTextField.addTarget(self, action: #selector(PostalAddressCell.textFieldDidChange(_:)), forControlEvents: .EditingChanged)
         postalCodeTextField.addTarget(self, action: #selector(PostalAddressCell.textFieldDidChange(_:)), forControlEvents: .EditingChanged)
-        cityTextField.addTarget(self, action: #selector(PostalAddressCell.textFieldDidChange(_:)), forControlEvents: .EditingChanged)
         countryTextField.addTarget(self, action: #selector(PostalAddressCell.textFieldDidChange(_:)), forControlEvents: .EditingChanged)
     }
     
@@ -205,14 +244,14 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             streetTextField.textAlignment = .Left
             streetTextField.clearButtonMode = title.isEmpty ? .WhileEditing : .Never
             
+            cityTextField.textAlignment = .Left
+            cityTextField.clearButtonMode = title.isEmpty ? .WhileEditing : .Never
+            
             stateTextField.textAlignment = .Left
             stateTextField.clearButtonMode = title.isEmpty ? .WhileEditing : .Never
             
             postalCodeTextField.textAlignment = .Left
             postalCodeTextField.clearButtonMode = title.isEmpty ? .WhileEditing : .Never
-            
-            cityTextField.textAlignment = .Left
-            cityTextField.clearButtonMode = title.isEmpty ? .WhileEditing : .Never
             
             countryTextField.textAlignment = .Left
             countryTextField.clearButtonMode = title.isEmpty ? .WhileEditing : .Never
@@ -220,14 +259,14 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             streetTextField.textAlignment =  .Left
             streetTextField.clearButtonMode =  .WhileEditing
             
+            cityTextField.textAlignment =  .Left
+            cityTextField.clearButtonMode =  .WhileEditing
+          
             stateTextField.textAlignment =  .Left
             stateTextField.clearButtonMode =  .WhileEditing
             
             postalCodeTextField.textAlignment =  .Left
             postalCodeTextField.clearButtonMode =  .WhileEditing
-            
-            cityTextField.textAlignment =  .Left
-            cityTextField.clearButtonMode =  .WhileEditing
             
             countryTextField.textAlignment =  .Left
             countryTextField.clearButtonMode =  .WhileEditing
@@ -242,6 +281,15 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         streetTextField.autocapitalizationType = .Words
         streetTextField.keyboardType = .ASCIICapable
         
+        cityTextField.delegate = self
+        cityTextField.text = row.value?.city
+        cityTextField.enabled = !row.isDisabled
+        cityTextField.textColor = row.isDisabled ? .grayColor() : .blackColor()
+        cityTextField.font = .preferredFontForTextStyle(UIFontTextStyleBody)
+        cityTextField.autocorrectionType = .No
+        cityTextField.autocapitalizationType = .Words
+        cityTextField.keyboardType = .ASCIICapable
+      
         stateTextField.delegate = self
         stateTextField.text = row.value?.state
         stateTextField.enabled = !row.isDisabled
@@ -259,15 +307,6 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         postalCodeTextField.autocorrectionType = .No
         postalCodeTextField.autocapitalizationType = .AllCharacters
         postalCodeTextField.keyboardType = .NumbersAndPunctuation
-        
-        cityTextField.delegate = self
-        cityTextField.text = row.value?.city
-        cityTextField.enabled = !row.isDisabled
-        cityTextField.textColor = row.isDisabled ? .grayColor() : .blackColor()
-        cityTextField.font = .preferredFontForTextStyle(UIFontTextStyleBody)
-        cityTextField.autocorrectionType = .No
-        cityTextField.autocapitalizationType = .Words
-        cityTextField.keyboardType = .ASCIICapable
         
         countryTextField.delegate = self
         countryTextField.text = row.value?.country
@@ -287,6 +326,14 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 }
             }
             
+            if let placeholder = rowConformance.cityPlaceholder{
+                  cityTextField.placeholder = placeholder
+                
+                if let color = rowConformance.placeholderColor {
+                    cityTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSForegroundColorAttributeName: color])
+                }
+              }
+          
             if let placeholder = rowConformance.statePlaceholder{
                 stateTextField.placeholder = placeholder
                 
@@ -303,14 +350,6 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 }
             }
             
-            if let placeholder = rowConformance.cityPlaceholder{
-                cityTextField.placeholder = placeholder
-                
-                if let color = rowConformance.placeholderColor {
-                    cityTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSForegroundColorAttributeName: color])
-                }
-            }
-            
             if let placeholder = rowConformance.countryPlaceholder{
                 countryTextField.placeholder = placeholder
                 
@@ -324,9 +363,9 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
     public override func cellCanBecomeFirstResponder() -> Bool {
         return !row.isDisabled && (
             streetTextField.canBecomeFirstResponder() ||
+				cityTextField.canBecomeFirstResponder() ||
                 stateTextField.canBecomeFirstResponder() ||
                 postalCodeTextField.canBecomeFirstResponder() ||
-                cityTextField.canBecomeFirstResponder() ||
                 countryTextField.canBecomeFirstResponder()
         )
     }
@@ -337,10 +376,10 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
     
     public override func cellResignFirstResponder() -> Bool {
         return streetTextField.resignFirstResponder()
+			&& cityTextField.resignFirstResponder()
             && stateTextField.resignFirstResponder()
             && postalCodeTextField.resignFirstResponder()
             && stateTextField.resignFirstResponder()
-            && cityTextField.resignFirstResponder()
             && countryTextField.resignFirstResponder()
     }
     
@@ -352,6 +391,14 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 v.nextButton.target = self
                 v.nextButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
             }
+			else if cityTextField.isFirstResponder() {
+				v.previousButton.target = self
+				v.previousButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
+				v.nextButton.target = self
+				v.nextButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
+				v.previousButton.enabled = true
+				v.nextButton.enabled = true
+			}
             else if stateTextField.isFirstResponder() {
                 v.previousButton.target = self
                 v.previousButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
@@ -361,13 +408,6 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 v.nextButton.enabled = true
             }
             else if postalCodeTextField.isFirstResponder() {
-                v.previousButton.target = self
-                v.previousButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
-                v.nextButton.target = self
-                v.nextButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
-                v.previousButton.enabled = true
-                v.nextButton.enabled = true
-            } else if cityTextField.isFirstResponder() {
                 v.previousButton.target = self
                 v.previousButton.action = #selector(PostalAddressCell.internalNavigationAction(_:))
                 v.nextButton.target = self
@@ -389,19 +429,19 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         guard let inputAccesoryView  = inputAccessoryView as? NavigationAccessoryView else { return }
         
         if streetTextField.isFirstResponder() {
-            stateTextField.becomeFirstResponder()
+            cityTextField.becomeFirstResponder()
         }
+		else if cityTextField.isFirstResponder() {
+			sender == inputAccesoryView.previousButton ? streetTextField.becomeFirstResponder() : stateTextField.becomeFirstResponder()
+		}
         else if stateTextField.isFirstResponder()  {
-            sender == inputAccesoryView.previousButton ? streetTextField.becomeFirstResponder() : postalCodeTextField.becomeFirstResponder()
+            sender == inputAccesoryView.previousButton ? cityTextField.becomeFirstResponder() : postalCodeTextField.becomeFirstResponder()
         }
         else if postalCodeTextField.isFirstResponder() {
-            sender == inputAccesoryView.previousButton ? stateTextField.becomeFirstResponder() : cityTextField.becomeFirstResponder()
-        }
-        else if cityTextField.isFirstResponder() {
-            sender == inputAccesoryView.previousButton ? postalCodeTextField.becomeFirstResponder() : countryTextField.becomeFirstResponder()
+            sender == inputAccesoryView.previousButton ? stateTextField.becomeFirstResponder() : countryTextField.becomeFirstResponder()
         }
         else if countryTextField.isFirstResponder() {
-            cityTextField.becomeFirstResponder()
+            postalCodeTextField.becomeFirstResponder()
         }
     }
     
@@ -428,17 +468,17 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         var views : [String: AnyObject] =  [
             "streetTextField": streetTextField,
             "streetSeparatorView": streetSeparatorView,
+            "cityTextField": cityTextField,
+            "citySeparatorView": citySeparatorView,
             "stateTextField": stateTextField,
             "stateSeparatorView": stateSeparatorView,
             "postalCodeTextField": postalCodeTextField,
             "postalCodeSeparatorView": postalCodeSeparatorView,
-            "cityTextField": cityTextField,
-            "citySeparatorView": citySeparatorView,
             "countryTextField": countryTextField
         ]
         
-        dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|-\(cellPadding)-[streetTextField(\(textFieldHeight))]-\(textFieldMargin)-[streetSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[stateTextField(\(textFieldHeight))]-\(textFieldMargin)-[stateSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[postalCodeTextField(\(textFieldHeight))]-\(textFieldMargin)-[postalCodeSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[countryTextField]-\(cellPadding)-|", options: [], metrics: nil, views: views)
-        dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|-\(cellPadding)-[streetTextField(\(textFieldHeight))]-\(textFieldMargin)-[streetSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[stateTextField(\(textFieldHeight))]-\(textFieldMargin)-[stateSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[cityTextField(\(textFieldHeight))]-\(textFieldMargin)-[citySeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[countryTextField]-\(cellPadding)-|", options: [], metrics: nil, views: views)
+        dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|-\(cellPadding)-[streetTextField(\(textFieldHeight))]-\(textFieldMargin)-[streetSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[cityTextField(\(textFieldHeight))]-\(textFieldMargin)-[citySeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[postalCodeTextField(\(textFieldHeight))]-\(textFieldMargin)-[postalCodeSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[countryTextField]-\(cellPadding)-|", options: [], metrics: nil, views: views)
+        dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|-\(cellPadding)-[streetTextField(\(textFieldHeight))]-\(textFieldMargin)-[streetSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[cityTextField(\(textFieldHeight))]-\(textFieldMargin)-[citySeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[stateTextField(\(textFieldHeight))]-\(textFieldMargin)-[stateSeparatorView(\(separatorViewHeight))]-\(textFieldMargin)-[countryTextField]-\(cellPadding)-|", options: [], metrics: nil, views: views)
         
         if let label = titleLabel, let text = label.text where !text.isEmpty {
             dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|-\(cellPadding)-[titleLabel]-\(cellPadding)-|", options: [], metrics: nil, views: ["titleLabel": label])
@@ -450,23 +490,23 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             if let titleLabel = titleLabel, text = titleLabel.text where !text.isEmpty {
                 views["label"] = titleLabel
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[streetTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[stateTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[countryTextField]-|", options: [], metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[streetSeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
             }
             else{
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[streetTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[stateTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[countryTextField]-|", options: [], metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[streetSeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
             }
         }
         else{
@@ -474,28 +514,28 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             if let titleLabel = titleLabel, let text = titleLabel.text where !text.isEmpty {
                 views["label"] = titleLabel
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[streetTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[stateTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[countryTextField]-|", options: [], metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[streetSeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
                 
                 let multiplier = (row as? PostalAddressRowConformance)?.postalAddressPercentage ?? 0.3
                 dynamicConstraints.append(NSLayoutConstraint(item: streetTextField, attribute: .Width, relatedBy: (row as? PostalAddressRowConformance)?.postalAddressPercentage != nil ? .Equal : .GreaterThanOrEqual, toItem: contentView, attribute: .Width, multiplier: multiplier, constant: 0.0))
-                dynamicConstraints.append(NSLayoutConstraint(item: stateTextField, attribute: .Width, relatedBy: (row as? PostalAddressRowConformance)?.postalAddressPercentage != nil ? .Equal : .GreaterThanOrEqual, toItem: contentView, attribute: .Width, multiplier: multiplier, constant: 0.0))
+                dynamicConstraints.append(NSLayoutConstraint(item: cityTextField, attribute: .Width, relatedBy: (row as? PostalAddressRowConformance)?.postalAddressPercentage != nil ? .Equal : .GreaterThanOrEqual, toItem: contentView, attribute: .Width, multiplier: multiplier, constant: 0.0))
                 dynamicConstraints.append(NSLayoutConstraint(item: countryTextField, attribute: .Width, relatedBy: (row as? PostalAddressRowConformance)?.postalAddressPercentage != nil ? .Equal : .GreaterThanOrEqual, toItem: contentView, attribute: .Width, multiplier: multiplier, constant: 0.0))
             }
             else{
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[streetTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[stateTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[cityTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[cityTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[countryTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[streetSeparatorView]-|", options: .AlignAllLeft, metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[stateSeparatorView]-|", options: .AlignAllLeft, metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[citySeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[citySeparatorView]-|", options: .AlignAllLeft, metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
             }
         }
         
@@ -513,14 +553,15 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             case streetTextField:
                 row.value?.street = nil
                 
-            case stateTextField:
+			case cityTextField:
+				row.value?.city = nil
+
+			case stateTextField:
                 row.value?.state = nil
                 
             case postalCodeTextField:
                 row.value?.postalCode = nil
-            case cityTextField:
-                row.value?.city = nil
-                
+				
             case countryTextField:
                 row.value?.country = nil
                 
@@ -539,6 +580,10 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 useFormatterDuringInput = rowConformance.streetUseFormatterDuringInput
                 valueFormatter = rowConformance.streetFormatter
                 
+			case cityTextField:
+				useFormatterDuringInput = rowConformance.cityUseFormatterDuringInput
+				valueFormatter = rowConformance.cityFormatter
+				
             case stateTextField:
                 useFormatterDuringInput = rowConformance.stateUseFormatterDuringInput
                 valueFormatter = rowConformance.stateFormatter
@@ -546,10 +591,6 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             case postalCodeTextField:
                 useFormatterDuringInput = rowConformance.postalCodeUseFormatterDuringInput
                 valueFormatter = rowConformance.postalCodeFormatter
-                
-            case cityTextField:
-                useFormatterDuringInput = rowConformance.cityUseFormatterDuringInput
-                valueFormatter = rowConformance.cityFormatter
                 
             case countryTextField:
                 useFormatterDuringInput = rowConformance.countryUseFormatterDuringInput
@@ -567,12 +608,12 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                     switch(textField){
                     case streetTextField:
                         row.value?.street = value.memory as? String
+					case cityTextField:
+						row.value?.city = value.memory as? String
                     case stateTextField:
                         row.value?.state = value.memory as? String
                     case postalCodeTextField:
                         row.value?.postalCode = value.memory as? String
-                    case cityTextField:
-                        row.value?.city = value.memory as? String
                     case countryTextField:
                         row.value?.country = value.memory as? String
                     default:
@@ -596,12 +637,12 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             switch(textField){
             case streetTextField:
                 row.value?.street = nil
+			case cityTextField:
+				row.value?.city = nil
             case stateTextField:
                 row.value?.state = nil
             case postalCodeTextField:
                 row.value?.postalCode = nil
-            case cityTextField:
-                row.value?.city = nil
             case countryTextField:
                 row.value?.country = nil
             default:
@@ -613,12 +654,12 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         switch(textField){
         case streetTextField:
             row.value?.street = textValue
+		case cityTextField:
+			row.value?.city = textValue
         case stateTextField:
             row.value?.state = textValue
         case postalCodeTextField:
             row.value?.postalCode = textValue
-        case cityTextField:
-            row.value?.city = textValue
         case countryTextField:
             row.value?.country = textValue
         default:
@@ -674,6 +715,9 @@ public class _PostalAddressRow<T: Equatable, Cell: CellType where Cell: BaseCell
     /// The textColor for the textField's placeholder
     public var placeholderColor : UIColor?
     
+	/// The placeholder for the city textField
+	public var cityPlaceholder : String?
+	
     /// The placeholder for the street textField
     public var streetPlaceholder : String?
     
@@ -683,23 +727,20 @@ public class _PostalAddressRow<T: Equatable, Cell: CellType where Cell: BaseCell
     /// The placeholder for the zip textField
     public var postalCodePlaceholder : String?
     
-    /// The placeholder for the city textField
-    public var cityPlaceholder : String?
-    
     /// The placeholder for the country textField
     public var countryPlaceholder : String?
     
     /// A formatter to be used to format the user's input for street
     public var streetFormatter: NSFormatter?
     
+	/// A formatter to be used to format the user's input for city
+	public var cityFormatter: NSFormatter?
+	
     /// A formatter to be used to format the user's input for state
     public var stateFormatter: NSFormatter?
     
     /// A formatter to be used to format the user's input for zip
     public var postalCodeFormatter: NSFormatter?
-    
-    /// A formatter to be used to format the user's input for city
-    public var cityFormatter: NSFormatter?
     
     /// A formatter to be used to format the user's input for country
     public var countryFormatter: NSFormatter?
@@ -721,9 +762,9 @@ public class _PostalAddressRow<T: Equatable, Cell: CellType where Cell: BaseCell
     
     public required init(tag: String?) {
         streetUseFormatterDuringInput = false
+		cityUseFormatterDuringInput = false
         stateUseFormatterDuringInput = false
         postalCodeUseFormatterDuringInput = false
-        cityUseFormatterDuringInput = false
         countryUseFormatterDuringInput = false
         
         super.init(tag: tag)
