@@ -462,7 +462,7 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         let cellPadding: CGFloat = 6.0
         let textFieldMargin: CGFloat = 2.0
         let textFieldHeight: CGFloat = (cellHeight - 2.0 * cellPadding - 3.0 * textFieldMargin * 2) / 4.0
-        let postalCodeTextFieldWidth: CGFloat = 80.0
+        let stateTextFieldWidth: CGFloat = 80.0
         let separatorViewHeight = 0.45
         
         var views : [String: AnyObject] =  [
@@ -491,22 +491,22 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 views["label"] = titleLabel
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[streetTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[cityTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[stateTextField(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[countryTextField]-|", options: [], metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[streetSeparatorView]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[citySeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[label]-[stateSeparatorView(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeSeparatorView]-|", options: [], metrics: nil, views: views)
             }
             else{
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[streetTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[cityTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[stateTextField(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[countryTextField]-|", options: [], metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[streetSeparatorView]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[citySeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[imageView]-[stateSeparatorView(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeSeparatorView]-|", options: [], metrics: nil, views: views)
             }
         }
         else{
@@ -515,12 +515,12 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
                 views["label"] = titleLabel
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[streetTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[cityTextField]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[stateTextField(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[countryTextField]-|", options: [], metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[streetSeparatorView]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[citySeparatorView]-|", options: [], metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[label]-[stateSeparatorView(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeSeparatorView]-|", options: [], metrics: nil, views: views)
                 
                 let multiplier = (row as? PostalAddressRowConformance)?.postalAddressPercentage ?? 0.3
                 dynamicConstraints.append(NSLayoutConstraint(item: streetTextField, attribute: .Width, relatedBy: (row as? PostalAddressRowConformance)?.postalAddressPercentage != nil ? .Equal : .GreaterThanOrEqual, toItem: contentView, attribute: .Width, multiplier: multiplier, constant: 0.0))
@@ -530,12 +530,12 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
             else{
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[streetTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[cityTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[postalCodeTextField(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateTextField]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[stateTextField(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeTextField]-|", options: [], metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[countryTextField]-|", options: .AlignAllLeft, metrics: nil, views: views)
                 
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[streetSeparatorView]-|", options: .AlignAllLeft, metrics: nil, views: views)
                 dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[citySeparatorView]-|", options: .AlignAllLeft, metrics: nil, views: views)
-                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[postalCodeSeparatorView(\(postalCodeTextFieldWidth))]-\(textFieldMargin * 2.0)-[stateSeparatorView]-|", options: [], metrics: nil, views: views)
+                dynamicConstraints += NSLayoutConstraint.constraintsWithVisualFormat("H:|-[stateSeparatorView(\(stateTextFieldWidth))]-\(textFieldMargin * 2.0)-[postalCodeSeparatorView]-|", options: [], metrics: nil, views: views)
             }
         }
         
