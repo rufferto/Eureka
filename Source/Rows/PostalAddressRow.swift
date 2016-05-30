@@ -462,7 +462,7 @@ public class PostalAddressCell<T: PostalAddressType>: Cell<T>, CellType, PostalA
         let cellPadding: CGFloat = 6.0
         let textFieldMargin: CGFloat = 2.0
         let textFieldHeight: CGFloat = (cellHeight - 2.0 * cellPadding - 3.0 * textFieldMargin * 2) / 4.0
-        let postalCodeTextFieldWidth: CGFloat = 80.0
+        let postalCodeTextFieldWidth: CGFloat = 110.0
         let separatorViewHeight = 0.45
         
         var views : [String: AnyObject] =  [
