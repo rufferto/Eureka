@@ -62,8 +62,8 @@ public struct PostalAddress: PostalAddressType {
           self.country = dictionary["Country"] as? String
         }
     }
-    public func asDictionary() -> [NSObject : AnyObject] {
-      var dictionary = [NSObject : AnyObject]()
+    public func asDictionary() -> [String : AnyObject] {
+      var dictionary = [String : AnyObject]()
       if let street = self.street {
           dictionary["Street"] = street
       }
