@@ -91,7 +91,7 @@
 		2859CD931C7CF1FD0002982F /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		2859CD991C7CF2020002982F /* ButtonRowWithPresent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonRowWithPresent.swift; sourceTree = "<group>"; };
 		2859CD9A1C7CF2020002982F /* SliderRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SliderRow.swift; sourceTree = "<group>"; };
-		2859CD9E1C7CF23D0002982F /* PostalAddressRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostalAddressRow.swift; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		2859CD9E1C7CF23D0002982F /* PostalAddressRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = PostalAddressRow.swift; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
 		2859CDA01C7CF3A10002982F /* LabelRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelRow.swift; sourceTree = "<group>"; };
 		2859CDA21C7CF4050002982F /* ButtonRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonRow.swift; sourceTree = "<group>"; };
 		2859CDA41C7CF51A0002982F /* CheckRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckRow.swift; sourceTree = "<group>"; };
@@ -278,7 +278,9 @@
 				51729DF91B9A4F5E004A00EB /* Tests */,
 				51729DEC1B9A4F5E004A00EB /* Products */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		51729DEC1B9A4F5E004A00EB /* Products */ = {
 			isa = PBXGroup;

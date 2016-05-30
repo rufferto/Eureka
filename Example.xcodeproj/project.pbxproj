@@ -147,7 +147,9 @@
 				285F2B451BB79BB7005991BA /* Supporting Files */,
 				51729E411B9A5841004A00EB /* Eureka.xcodeproj */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		51729E1B1B9A54F1004A00EB /* Products */ = {
 			isa = PBXGroup;
