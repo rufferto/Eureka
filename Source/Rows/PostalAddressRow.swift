@@ -46,7 +46,10 @@ public struct PostalAddress: PostalAddressType {
 	public init(placemark: CLPlacemark?) {
 		if let placemark = placemark {
 			// missing street accessor ?
-			if let thoroughfare = placemark.thoroughfare {
+			if let street = placemark.addressDictionary?["Street"] as? String {
+				self.street = street
+			}
+			else if let thoroughfare = placemark.thoroughfare {
 				if let subThoroughfare = placemark.subThoroughfare {
 					self.street = subThoroughfare + " " + thoroughfare
 				}
