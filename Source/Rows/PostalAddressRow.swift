@@ -44,9 +44,19 @@ public struct PostalAddress: PostalAddressType {
 		self.country = country
 	}
 	public init(placemark: CLPlacemark?) {
-		if let placemark = placemark, thoroughfare = placemark.thoroughfare, subThoroughfare = placemark.subThoroughfare {
+		if let placemark = placemark {
 			// missing street accessor ?
-			self.street = subThoroughfare + " " + thoroughfare
+			if let thoroughfare = placemark.thoroughfare {
+				if let subThoroughfare = placemark.subThoroughfare {
+					self.street = subThoroughfare + " " + thoroughfare
+				}
+				else {
+					self.street = thoroughfare
+				}
+			}
+			else {
+				self.street = placemark.name
+			}
 			self.state = placemark.administrativeArea
 			self.postalCode = placemark.postalCode
 			self.city = placemark.locality
