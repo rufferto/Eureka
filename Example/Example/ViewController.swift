@@ -248,18 +248,7 @@ class RowsExampleViewController: FormViewController {
                         to.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: from, action: #selector(RowsExampleViewController.multipleSelectorDone(_:)))
                     }
             
-        form +++ Section("Generic picker")
-            
-                <<< PickerRow<String>("Picker Row") { (row : PickerRow<String>) -> Void in
-                
-                    row.options = []
-                    for i in 1...10{
-                        row.options.append("option \(i)")
-                    }
-                
-                }
-        
-            +++ Section("FieldRow examples")
+        form +++ Section("FieldRow examples")
             
                 <<< TextRow() {
                         $0.title = "TextRow"
@@ -320,7 +309,17 @@ class RowsExampleViewController: FormViewController {
                         $0.title = "ZipCodeRow"
                         $0.placeholder = "90210"
                     }
-			
+
+            +++ Section("Generic picker")
+
+                <<< PickerRow<String>("Picker Row") { (row : PickerRow<String>) -> Void in
+
+                    row.options = []
+                    for i in 1...10{
+                        row.options.append("option \(i)")
+                    }
+                
+                }
 			+++ Section("PostalAddressRow example")
 			
 				<<< PostalAddressRow(){
@@ -957,8 +956,8 @@ class FormatterExample : FormViewController {
             return true
         }
         
-        func getNewPosition(forPosition position: UITextPosition, inTextInput textInput: UITextInput, oldValue: String?, newValue: String?) -> UITextPosition {
-            return textInput.positionFromPosition(position, offset:((newValue?.characters.count ?? 0) - (oldValue?.characters.count ?? 0))) ?? position
+        func getNewPosition(forPosition: UITextPosition, inTextInput textInput: UITextInput, oldValue: String?, newValue: String?) -> UITextPosition {
+            return textInput.positionFromPosition(forPosition, offset:((newValue?.characters.count ?? 0) - (oldValue?.characters.count ?? 0))) ?? forPosition
         }
     }
 }
