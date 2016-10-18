@@ -92,12 +92,17 @@ class HomeViewController : FormViewController {
                     row.title = row.tag
                     row.presentationMode = .SegueName(segueName: "ListSectionsControllerSegue", completionCallback: nil)
                 }
+                <<< ButtonRow("Validations") { (row: ButtonRow) -> Void in
+                    row.title = row.tag
+                    row.presentationMode = .SegueName(segueName: "ValidationsControllerSegue", completionCallback: nil)
+                }
         +++ Section()
                 <<< ButtonRow() { (row: ButtonRow) -> Void in
                    row.title = "About"
-                }  .onCellSelection({ (cell, row) in
-                    self.showAlert()
-                })
+                }
+                .onCellSelection { [weak self] (cell, row) in
+                    self?.showAlert()
+                }
     }
     
     
@@ -1084,6 +1089,238 @@ class ListSectionsController: FormViewController {
         else if row.section === form[1] {
             print("Mutiple Selection:\((row.section as! SelectableSection<ImageCheckRow<String>, String>).selectedRows().map({$0.baseValue}))")
         }
+    }
+}
+
+class ValidationsController: FormViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        LabelRow.defaultCellUpdate = { cell, row in
+            cell.contentView.backgroundColor = .redColor()
+            cell.textLabel?.textColor = .whiteColor()
+            cell.textLabel?.font = UIFont.boldSystemFontOfSize(13)
+            cell.textLabel?.textAlignment = .Right
+            
+        }
+        
+        TextRow.defaultCellUpdate = { cell, row in
+            if !row.isValid {
+                cell.titleLabel?.textColor = .redColor()
+            }
+        }
+        
+        form
+            +++ Section(header: "Required Rule", footer: "Options: Validates on change")
+            
+                    <<< TextRow() {
+                        $0.title = "Required Rule"
+                        $0.addRule(RuleRequired())
+                        $0.validationOptions = .ValidatesOnChange
+                    }
+            
+            
+            +++ Section(header: "Email Rule, Required Rule", footer: "Options: Validates on change after blurred")
+            
+                    <<< TextRow() {
+                        $0.title = "Email Rule"
+                        $0.addRule(RuleRequired())
+                        $0.addRule(RuleEmail())
+                        $0.validationOptions = .ValidatesOnChangeAfterBlurred
+                    }
+    
+            +++ Section(header: "URL Rule", footer: "Options: Validates on change")
+        
+                    <<< URLRow() {
+                        $0.title = "URL Rule"
+                        $0.addRule(RuleURL())
+                        $0.validationOptions = .ValidatesOnChange
+                    }
+                    .cellUpdate { cell, row in
+                        if !row.isValid {
+                            cell.titleLabel?.textColor = .redColor()
+                        }
+                    }
+        
+            
+            +++ Section(header: "MinLength 8 Rule, MaxLength 13 Rule", footer: "Options: Validates on blurred")
+                    <<< PasswordRow() {
+                        $0.title = "Password"
+                        $0.addRule(RuleMinLength(minLength: 8))
+                        $0.addRule(RuleMaxLength(maxLength: 13))
+                    }
+                    .cellUpdate { cell, row in
+                        if !row.isValid {
+                            cell.titleLabel?.textColor = .redColor()
+                        }
+                    }
+            
+            
+            +++ Section(header: "Should be GreaterThan 2 and SmallerThan 999", footer: "Options: Validates on blurred")
+        
+                    <<< IntRow() {
+                        $0.title = "Range Rule"
+                        $0.addRule(RuleGreaterThan(min: 2))
+                        $0.addRule(RuleSmallerThan(max: 999))
+                    }
+                    .cellUpdate { cell, row in
+                        if !row.isValid {
+                            cell.titleLabel?.textColor = .redColor()
+                        }
+                    }
+
+        
+            +++ Section(header: "More sophisticated validations UX using callbacks", footer: "")
+        
+                    <<< TextRow() {
+                        $0.title = "Required Rule"
+                        $0.addRule(RuleRequired())
+                        $0.validationOptions = .ValidatesOnChange
+                    }
+                    .cellUpdate { cell, row in
+                        if !row.isValid {
+                            cell.titleLabel?.textColor = .redColor()
+                        }
+                    }
+                    .onRowValidationChanged { cell, row in
+                        let rowIndex = row.indexPath()!.row
+                        while row.section!.count > rowIndex + 1 && row.section?[rowIndex  + 1] is LabelRow {
+                            row.section?.removeAtIndex(rowIndex + 1)
+                        }
+                        if !row.isValid {
+                            for (index, validationMsg) in row.validationErrors.map({ $0.msg }).enumerate() {
+                                let labelRow = LabelRow() {
+                                    $0.title = validationMsg
+                                    $0.cell.height = { 30 }
+                                }
+                                row.section?.insert(labelRow, atIndex: row.indexPath()!.row + index + 1)
+                            }
+                        }
+                    }
+            
+        
+        
+                    <<< EmailRow() {
+                        $0.title = "Email Rule"
+                        $0.addRule(RuleRequired())
+                        $0.addRule(RuleEmail())
+                        $0.validationOptions = .ValidatesOnChangeAfterBlurred
+                    }
+                    .cellUpdate { cell, row in
+                        if !row.isValid {
+                            cell.titleLabel?.textColor = .redColor()
+                        }
+                    }
+                    .onRowValidationChanged { cell, row in
+                        let rowIndex = row.indexPath()!.row
+                        while row.section!.count > rowIndex + 1 && row.section?[rowIndex  + 1] is LabelRow {
+                            row.section?.removeAtIndex(rowIndex + 1)
+                        }
+                        if !row.isValid {
+                            for (index, validationMsg) in row.validationErrors.map({ $0.msg }).enumerate() {
+                                let labelRow = LabelRow() {
+                                    $0.title = validationMsg
+                                    $0.cell.height = { 30 }
+                                }
+                                row.section?.insert(labelRow, atIndex: row.indexPath()!.row + index + 1)
+                            }
+                        }
+                    }
+
+            
+        
+                    <<< URLRow() {
+                            $0.title = "URL Rule"
+                            $0.addRule(RuleURL())
+                            $0.validationOptions = .ValidatesOnChange
+                        }
+                        .cellUpdate { cell, row in
+                            if !row.isValid {
+                                cell.titleLabel?.textColor = .redColor()
+                            }
+                    }
+                    .onRowValidationChanged { cell, row in
+                        let rowIndex = row.indexPath()!.row
+                        while row.section!.count > rowIndex + 1 && row.section?[rowIndex  + 1] is LabelRow {
+                            row.section?.removeAtIndex(rowIndex + 1)
+                        }
+                        if !row.isValid {
+                            for (index, validationMsg) in row.validationErrors.map({ $0.msg }).enumerate() {
+                                let labelRow = LabelRow() {
+                                    $0.title = validationMsg
+                                    $0.cell.height = { 30 }
+                                }
+                                row.section?.insert(labelRow, atIndex: row.indexPath()!.row + index + 1)
+                            }
+                        }
+                    }
+            
+            
+                    <<< PasswordRow() {
+                            $0.title = "Password"
+                            $0.addRule(RuleMinLength(minLength: 8))
+                            $0.addRule(RuleMaxLength(maxLength: 13))
+                        }
+                        .cellUpdate { cell, row in
+                            if !row.isValid {
+                                cell.titleLabel?.textColor = .redColor()
+                            }
+                    }
+                    .onRowValidationChanged { cell, row in
+                        let rowIndex = row.indexPath()!.row
+                        while row.section!.count > rowIndex + 1 && row.section?[rowIndex  + 1] is LabelRow {
+                            row.section?.removeAtIndex(rowIndex + 1)
+                        }
+                        if !row.isValid {
+                            for (index, validationMsg) in row.validationErrors.map({ $0.msg }).enumerate() {
+                                let labelRow = LabelRow() {
+                                    $0.title = validationMsg
+                                    $0.cell.height = { 30 }
+                                }
+                                row.section?.insert(labelRow, atIndex: row.indexPath()!.row + index + 1)
+                            }
+                        }
+                    }
+            
+            
+            
+                    <<< IntRow() {
+                            $0.title = "Range Rule"
+                            $0.addRule(RuleGreaterThan(min: 2))
+                            $0.addRule(RuleSmallerThan(max: 999))
+                        }
+                        .cellUpdate { cell, row in
+                            if !row.isValid {
+                                cell.titleLabel?.textColor = .redColor()
+                            }
+                        }
+                        .onRowValidationChanged { cell, row in
+                            let rowIndex = row.indexPath()!.row
+                            while row.section!.count > rowIndex + 1 && row.section?[rowIndex  + 1] is LabelRow {
+                                row.section?.removeAtIndex(rowIndex + 1)
+                            }
+                            if !row.isValid {
+                                for (index, validationMsg) in row.validationErrors.map({ $0.msg }).enumerate() {
+                                    let labelRow = LabelRow() {
+                                        $0.title = validationMsg
+                                        $0.cell.height = { 30 }
+                                    }
+                                    row.section?.insert(labelRow, atIndex: row.indexPath()!.row + index + 1)
+                                }
+                            }
+                        }
+        
+        
+            +++ Section()
+                <<< ButtonRow() {
+                    $0.title = "Tap to force form validation"
+                }
+                .onCellSelection { cell, row in
+                    row.section?.form?.validates()
+                }
+        
+    
     }
 }
 

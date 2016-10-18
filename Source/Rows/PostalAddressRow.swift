@@ -796,14 +796,14 @@ public class _PostalAddressRow<T: Equatable, Cell: CellType where Cell: BaseCell
 
 /// A PostalAddress valued row where the user can enter a postal address.
 public final class PostalAddressRow: _PostalAddressRow<PostalAddress, PostalAddressCell<PostalAddress>>, RowType {
-	public required init(tag: String? = nil) {
-		super.init(tag: tag)
-		onCellHighlight { cell, row  in
-			let color = cell.textLabel?.textColor
-			row.onCellUnHighlight { cell, _ in
-				cell.textLabel?.textColor = color
-			}
-			cell.textLabel?.textColor = cell.tintColor
-		}
-	}
+    public required init(tag: String? = nil) {
+        super.init(tag: tag)
+        onCellHighlightChanged { cell, row  in
+            let color = cell.textLabel?.textColor
+            row.onCellHighlightChanged { cell, _ in
+                cell.textLabel?.textColor = color
+            }
+            cell.textLabel?.textColor = cell.tintColor
+        }
+    }
 }

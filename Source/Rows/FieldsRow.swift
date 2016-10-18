@@ -1,10 +1,26 @@
-//
 //  FieldsRow.swift
-//  Eureka
+//  Eureka ( https://github.com/xmartlabs/Eureka )
 //
-//  Created by Martin Barreto on 2/24/16.
-//  Copyright © 2016 Xmartlabs. All rights reserved.
+//  Copyright (c) 2016 Xmartlabs SRL ( http://xmartlabs.com )
 //
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 import Foundation
 
@@ -243,13 +259,6 @@ public class _ZipCodeRow: FieldRow<String, ZipCodeCell> {
 public final class TextRow: _TextRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -257,13 +266,6 @@ public final class TextRow: _TextRow, RowType {
 public final class NameRow: _NameRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -271,13 +273,6 @@ public final class NameRow: _NameRow, RowType {
 public final class PasswordRow: _PasswordRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -285,13 +280,6 @@ public final class PasswordRow: _PasswordRow, RowType {
 public final class EmailRow: _EmailRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -299,13 +287,6 @@ public final class EmailRow: _EmailRow, RowType {
 public final class TwitterRow: _TwitterRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -313,13 +294,6 @@ public final class TwitterRow: _TwitterRow, RowType {
 public final class AccountRow: _AccountRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -327,13 +301,6 @@ public final class AccountRow: _AccountRow, RowType {
 public final class ZipCodeRow: _ZipCodeRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -341,13 +308,6 @@ public final class ZipCodeRow: _ZipCodeRow, RowType {
 public final class IntRow: _IntRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -355,13 +315,6 @@ public final class IntRow: _IntRow, RowType {
 public final class DecimalRow: _DecimalRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -369,13 +322,6 @@ public final class DecimalRow: _DecimalRow, RowType {
 public final class URLRow: _URLRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }
 
@@ -383,12 +329,5 @@ public final class URLRow: _URLRow, RowType {
 public final class PhoneRow: _PhoneRow, RowType {
     required public init(tag: String?) {
         super.init(tag: tag)
-        onCellHighlight { cell, row  in
-            let color = cell.textLabel?.textColor
-            row.onCellUnHighlight { cell, _ in
-                cell.textLabel?.textColor = color
-            }
-            cell.textLabel?.textColor = cell.tintColor
-        }
     }
 }

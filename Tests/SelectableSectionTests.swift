@@ -1,7 +1,7 @@
 //  SelectableSectionTests.swift
 //  Eureka ( https://github.com/xmartlabs/Eureka )
 //
-//  Copyright (c) 2015 Xmartlabs ( http://xmartlabs.com )
+//  Copyright (c) 2016 Xmartlabs ( http://xmartlabs.com )
 //
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,13 +33,13 @@ class SelectableSectionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        var form = Form()
+        let form = Form()
         //create a form with two sections. The second one is of multiple selection
         
         let continents = ["Africa", "Antarctica", "Asia", "Australia", "Europe", "North America", "South America"]
         let oceans = ["Arctic", "Atlantic", "Indian", "Pacific", "Southern"]
         
-        form +++= SelectableSection<ListCheckRow<String>, String>() { _ in }
+        form +++ SelectableSection<ListCheckRow<String>, String>() { _ in }
         for option in continents {
             form.last! <<< ListCheckRow<String>(option){ lrow in
                 lrow.title = option
